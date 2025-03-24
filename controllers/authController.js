@@ -6,9 +6,13 @@ exports.register = async (req, res) => {
   const { email, password } = req.body;
   const hash = await bcrypt.hash(password, 10);
   try {
-    const [rows] = await pool.execute('INSERT INTO users (email, password_hash) VALUES (?, ?)', [email, hash]);
+    const [rows] = await pool.execute(
+      'INSERT INTO users (email, password_hash) VALUES (?, ?)',
+      [email, hash]
+    );
     res.status(201).json({ id: rows.insertId });
   } catch (err) {
+    console.error("REGISTER ERROR:", err); // 👈 This line logs the real error
     res.status(500).json({ error: 'User registration failed.' });
   }
 };
