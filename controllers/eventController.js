@@ -14,10 +14,14 @@ exports.getEventsByDay = async (req, res) => {
         ? `${parseInt(year) + 1}-01-01`
         : `${year}-${String(parseInt(mon) + 1).padStart(2, '0')}-01`;
     
-      const [rows] = await pool.execute(
-        'SELECT * FROM events WHERE user_id = ? AND event_time >= ? AND event_time < ? ORDER BY event_time',
-        [userId, start, end]
-      );
+        const [rows] = await pool.execute(
+          `SELECT *, DATE(CONVERT_TZ(event_time, '+00:00', '+01:00')) AS local_date
+           FROM events
+           WHERE user_id = ?
+             AND event_time >= ? AND event_time < ?
+           ORDER BY event_time`,
+          [userId, start, end]
+        );
     
       console.log(`🟢 Fetched ${rows.length} events for month ${month}`);
       return res.json(rows);
