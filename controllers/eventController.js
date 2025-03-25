@@ -2,14 +2,25 @@ const pool = require('../config/db');
 
 exports.getEventsByDay = async (req, res) => {
   const { userId } = req.user;
-  const { date } = req.query;
+  const { date, month } = req.query;
 
-  console.log(`🔍 Fetching events for user ${userId} on date ${date}`);
+  console.log(`Fetching events for user ${userId} | date: ${date} | month: ${month}`);
 
   try {
+    if (month) {
+      const start = `${month}-01`;
+      const end = `${month}-32`;
+
+      const [rows] = await pool.execute(
+        'SELECT * FROM events WHERE user_id = ? AND event_time >= ? AND event_time < ? ORDER BY event_time',
+        [userId, start, end]
+      );
+
+      return res.json(rows);
+    }
+
     if (!date) {
-      console.error('❌ Missing "date" query parameter');
-      return res.status(400).json({ error: 'Date parameter is required' });
+      return res.status(400).json({ error: 'Date or month parameter is required' });
     }
 
     const [rows] = await pool.execute(
@@ -17,10 +28,9 @@ exports.getEventsByDay = async (req, res) => {
       [userId, date]
     );
 
-    console.log(`✅ Found ${rows.length} events`);
     res.json(rows);
   } catch (error) {
-    console.error('💥 Error in getEventsByDay:', error);
+    console.error('Error in getEventsByDay:', error);
     res.status(500).json({ error: 'Failed to fetch events' });
   }
 };
