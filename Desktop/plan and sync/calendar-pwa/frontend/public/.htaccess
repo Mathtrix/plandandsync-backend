@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Redirect syncandplan.com → www.syncandplan.com
+RewriteCond %{HTTP_HOST} ^syncandplan\.com$ [NC]
+RewriteRule ^(.*)$ https://www.syncandplan.com/$1 [L,R=301]
