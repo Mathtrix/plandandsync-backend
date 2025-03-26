@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+require('dotenv').config();
+
 const app = express();
 const server = http.createServer(app);
 
@@ -22,6 +24,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Mount push notification routes
+const pushRoutes = require('./routes/push');
+app.use('/api/push', pushRoutes);
 
 app.get('/', (req, res) => res.send('Calendar API running'));
 
